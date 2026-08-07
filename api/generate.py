@@ -1,14 +1,10 @@
 import os
 import requests
 import PyPDF2
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 
-# Notice the '../templates' so it knows to look outside the api folder
-app = Flask(__name__, template_folder='../templates')
-
-@app.route('/')
-def index():
-    return render_template('index.html')
+# No more HTML templates! Python just handles the data now.
+app = Flask(__name__)
 
 @app.route('/api/generate', methods=['POST'])
 def generate_notes():
