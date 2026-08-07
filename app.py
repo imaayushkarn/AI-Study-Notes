@@ -1,12 +1,8 @@
 import os
 from flask import Flask, request, jsonify, render_template
-import PyPDF2
 
-# 1. Define the app IMMEDIATELY so Vercel finds it without crashing
+# 1. Define the app immediately so Vercel finds it 100% of the time
 app = Flask(__name__, template_folder='templates')
-
-# 2. Import the AI library AFTER the app is defined
-from google import genai
 
 @app.route('/')
 def index():
@@ -14,8 +10,17 @@ def index():
 
 @app.route('/api/generate', methods=['POST'])
 def generate_notes():
+    # 2. HIDE THE IMPORTS INSIDE THE FUNCTION!
+    # Vercel won't try to load these until the user actually clicks the button.
+    try:
+        import PyPDF2
+        from google import genai
+    except Exception as e:
+        return jsonify({"error": f"Server failed to load AI libraries: {e}"}), 500
+
     text_content = ""
     
+    # 3. Check if PDF is uploaded
     if 'file' in request.files:
         file = request.files['file']
         if file.filename != '':
@@ -26,6 +31,7 @@ def generate_notes():
             except Exception as e:
                 return jsonify({"error": "Failed to read PDF."}), 400
     
+    # 4. Check for pasted text
     if not text_content and 'text' in request.form:
         text_content = request.form['text']
         
@@ -33,6 +39,7 @@ def generate_notes():
         return jsonify({"error": "Please paste text or upload a valid PDF file."}), 400
 
     try:
+        # 5. Connect to AI
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
              return jsonify({"error": "Server error: API Key is missing in Vercel settings."}), 500
@@ -51,7 +58,7 @@ def generate_notes():
         7. Keywords
         8. One-day Revision Plan
         
-        Format the response using clear HTML tags (like <h2>, <ul>, <li>, <p>, <strong>) so it looks beautiful on a webpage. Do NOT include ```html markdown blocks.
+        Format the response using clear HTML tags (like <h2>, <ul>, <li>, <p>, <strong>). Do NOT include ```html markdown blocks.
         
         Study Material:
         {text_content}
@@ -64,19 +71,15 @@ def generate_notes():
         return jsonify({"result": response.text})
     
     except Exception as e:
-        print(f"Backend Crash: {e}") 
-        return jsonify({"error": "AI Generation Failed. Make sure your API key is correct and valid."}), 500
+        print(f"AI Error: {e}") 
+        return jsonify({"error": f"AI Generation Failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)import os
 from flask import Flask, request, jsonify, render_template
-import PyPDF2
 
-# 1. Define the app IMMEDIATELY so Vercel finds it without crashing
+# 1. Define the app immediately so Vercel finds it 100% of the time
 app = Flask(__name__, template_folder='templates')
-
-# 2. Import the AI library AFTER the app is defined
-from google import genai
 
 @app.route('/')
 def index():
@@ -84,8 +87,17 @@ def index():
 
 @app.route('/api/generate', methods=['POST'])
 def generate_notes():
+    # 2. HIDE THE IMPORTS INSIDE THE FUNCTION!
+    # Vercel won't try to load these until the user actually clicks the button.
+    try:
+        import PyPDF2
+        from google import genai
+    except Exception as e:
+        return jsonify({"error": f"Server failed to load AI libraries: {e}"}), 500
+
     text_content = ""
     
+    # 3. Check if PDF is uploaded
     if 'file' in request.files:
         file = request.files['file']
         if file.filename != '':
@@ -96,6 +108,7 @@ def generate_notes():
             except Exception as e:
                 return jsonify({"error": "Failed to read PDF."}), 400
     
+    # 4. Check for pasted text
     if not text_content and 'text' in request.form:
         text_content = request.form['text']
         
@@ -103,6 +116,7 @@ def generate_notes():
         return jsonify({"error": "Please paste text or upload a valid PDF file."}), 400
 
     try:
+        # 5. Connect to AI
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
              return jsonify({"error": "Server error: API Key is missing in Vercel settings."}), 500
@@ -121,7 +135,7 @@ def generate_notes():
         7. Keywords
         8. One-day Revision Plan
         
-        Format the response using clear HTML tags (like <h2>, <ul>, <li>, <p>, <strong>) so it looks beautiful on a webpage. Do NOT include ```html markdown blocks.
+        Format the response using clear HTML tags (like <h2>, <ul>, <li>, <p>, <strong>). Do NOT include ```html markdown blocks.
         
         Study Material:
         {text_content}
@@ -134,8 +148,8 @@ def generate_notes():
         return jsonify({"result": response.text})
     
     except Exception as e:
-        print(f"Backend Crash: {e}") 
-        return jsonify({"error": "AI Generation Failed. Make sure your API key is correct and valid."}), 500
+        print(f"AI Error: {e}") 
+        return jsonify({"error": f"AI Generation Failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
