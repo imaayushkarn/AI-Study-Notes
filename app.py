@@ -6,9 +6,8 @@ import os
 app = Flask(__name__, template_folder='templates')
 
 # Vercel will inject this environment variable securely
-api_key = os.environ.get("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+# Hardcoded for hackathon demo
+genai.configure(api_key="AIzaSyYourActualAPIKeyGoesHere...")
 
 @app.route('/')
 def index():
