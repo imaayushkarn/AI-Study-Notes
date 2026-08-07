@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify, render_template
-from google import genai
-import PyPDF2
 import os
+from flask import Flask, request, jsonify, render_template
+import PyPDF2
 
+# 1. Define the app IMMEDIATELY so Vercel finds it without crashing
 app = Flask(__name__, template_folder='templates')
+
+# 2. Import the AI library AFTER the app is defined
+from google import genai
 
 @app.route('/')
 def index():
@@ -13,7 +16,6 @@ def index():
 def generate_notes():
     text_content = ""
     
-    # 1. Check if PDF is uploaded
     if 'file' in request.files:
         file = request.files['file']
         if file.filename != '':
@@ -24,7 +26,6 @@ def generate_notes():
             except Exception as e:
                 return jsonify({"error": "Failed to read PDF."}), 400
     
-    # 2. Check for pasted text if no PDF is used
     if not text_content and 'text' in request.form:
         text_content = request.form['text']
         
@@ -32,12 +33,10 @@ def generate_notes():
         return jsonify({"error": "Please paste text or upload a valid PDF file."}), 400
 
     try:
-        # 3. Securely grab the API key from Vercel
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
              return jsonify({"error": "Server error: API Key is missing in Vercel settings."}), 500
              
-        # 4. Use the NEW Google GenAI Client
         client = genai.Client(api_key=api_key)
         
         prompt = f"""
@@ -58,7 +57,6 @@ def generate_notes():
         {text_content}
         """
         
-        # Call the latest Gemini model using the new syntax
         response = client.models.generate_content(
             model='gemini-2.0-flash', 
             contents=prompt
@@ -66,17 +64,19 @@ def generate_notes():
         return jsonify({"result": response.text})
     
     except Exception as e:
-        # Printing the exact error to the Vercel logs if it fails again
         print(f"Backend Crash: {e}") 
         return jsonify({"error": "AI Generation Failed. Make sure your API key is correct and valid."}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)from flask import Flask, request, jsonify, render_template
-from google import genai
+    app.run(debug=True)import os
+from flask import Flask, request, jsonify, render_template
 import PyPDF2
-import os
 
+# 1. Define the app IMMEDIATELY so Vercel finds it without crashing
 app = Flask(__name__, template_folder='templates')
+
+# 2. Import the AI library AFTER the app is defined
+from google import genai
 
 @app.route('/')
 def index():
@@ -86,7 +86,6 @@ def index():
 def generate_notes():
     text_content = ""
     
-    # 1. Check if PDF is uploaded
     if 'file' in request.files:
         file = request.files['file']
         if file.filename != '':
@@ -97,7 +96,6 @@ def generate_notes():
             except Exception as e:
                 return jsonify({"error": "Failed to read PDF."}), 400
     
-    # 2. Check for pasted text if no PDF is used
     if not text_content and 'text' in request.form:
         text_content = request.form['text']
         
@@ -105,12 +103,10 @@ def generate_notes():
         return jsonify({"error": "Please paste text or upload a valid PDF file."}), 400
 
     try:
-        # 3. Securely grab the API key from Vercel
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
              return jsonify({"error": "Server error: API Key is missing in Vercel settings."}), 500
              
-        # 4. Use the NEW Google GenAI Client
         client = genai.Client(api_key=api_key)
         
         prompt = f"""
@@ -131,7 +127,6 @@ def generate_notes():
         {text_content}
         """
         
-        # Call the latest Gemini model using the new syntax
         response = client.models.generate_content(
             model='gemini-2.0-flash', 
             contents=prompt
@@ -139,7 +134,6 @@ def generate_notes():
         return jsonify({"result": response.text})
     
     except Exception as e:
-        # Printing the exact error to the Vercel logs if it fails again
         print(f"Backend Crash: {e}") 
         return jsonify({"error": "AI Generation Failed. Make sure your API key is correct and valid."}), 500
 
